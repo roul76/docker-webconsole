@@ -7,6 +7,18 @@ if [ "${WEBCONSOLE_USER}" != "" ] && [ "${WEBCONSOLE_HASH}" != "" ] && [ "${WEBC
   echo "${WEBCONSOLE_USER}:${WEBCONSOLE_HASH}" | chpasswd -e
 fi
 
+# Enable auto update of /etc/hosts by permanently
+# watching for /webconsole/hosts
+cp /etc/hosts /etc/hosts.backup
+(
+  while : ; do
+    if [ -r /webconsole/hosts ]; then
+      cat /etc/hosts.backup /webconsole/hosts > /etc/hosts
+    fi
+    sleep 1
+  done
+) &
+
 unset WEBCONSOLE_USER
 unset WEBCONSOLE_HASH
 

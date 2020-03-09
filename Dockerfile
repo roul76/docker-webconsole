@@ -9,7 +9,8 @@ ENV WEBCONSOLE_USER='wetty' \
 
 # Add only the OpenSSH client - This image is a jump host!
 RUN apk add --update --no-cache openssh-client && \
-    rm /etc/motd
+    rm /etc/motd && \
+    chmod 664 /etc/hosts
 
 COPY ./entrypoint.sh ./
 RUN chmod 755 ./entrypoint.sh

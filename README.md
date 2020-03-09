@@ -1,7 +1,9 @@
 # docker-webconsole
 A docker container running WeTTy (https://github.com/butlerx/wetty)
+
 Defaults: user `wetty`, password `wetty`, shell `/bin/sh`
-Defaults could be overridden with
+
+Defaults can be overridden with
 ```
 docker run ... \
 -e WEBCONSOLE_USER='your_user' \
@@ -13,3 +15,6 @@ To hash your password use `openssl`:
 ```
 openssl passwd -1 'your_password'
 ```
+The container permanently watches for a file `/webconsole/hosts`.
+The content of this file will be added to `/etc/hosts`. Any changes
+to this file will be applied within 1 second.
