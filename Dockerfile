@@ -2,8 +2,8 @@
 FROM butlerx/wetty:latest
 
 # Default user is 'term' with password 'term'
-ENV WEBCONSOLE_USER='term' \
-    WEBCONSOLE_HASH='$1$Na5Tk1oW$Vpr1Hkuw7RkI17YU0zM.T/' \
+ENV WEBCONSOLE_USER='wetty' \
+    WEBCONSOLE_HASH='$1$DtdzYdkU$XXM0/.nA8CdpMAPL8bOTs1' \
     WEBCONSOLE_SHELL='/bin/sh' \
     WEBCONSOLE_PORT=3000
 
