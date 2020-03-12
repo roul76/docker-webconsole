@@ -3,21 +3,26 @@ set -o pipefail
 
 # Create login user
 if [ "${WEBCONSOLE_USER}" != "" ] && [ "${WEBCONSOLE_HASH}" != "" ] && [ "${WEBCONSOLE_SHELL}" != "" ]; then
-  adduser -S -h "/home/${WEBCONSOLE_USER}" -s "${WEBCONSOLE_SHELL}" "${WEBCONSOLE_USER}"
+  adduser -S -h /home/"${WEBCONSOLE_USER}" -s "${WEBCONSOLE_SHELL}" "${WEBCONSOLE_USER}"
   echo "${WEBCONSOLE_USER}:${WEBCONSOLE_HASH}" | chpasswd -e
+  sshdir=/home/"${WEBCONSOLE_USER}"/.ssh
+  mkdir -p "${sshdir}" && chmod 700 "${sshdir}" && chown "${WEBCONSOLE_USER}" "${sshdir}"
 fi
 
 # Enable auto update of /etc/hosts by permanently
-# watching for /webconsole/hosts
-cp /etc/hosts /etc/hosts.backup
-(
-  while : ; do
-    if [ -r /webconsole/hosts ]; then
-      cat /etc/hosts.backup /webconsole/hosts > /etc/hosts
-    fi
-    sleep 1
-  done
-) &
+# looking for /webconsole/*.hosts
+if [ -r /webconsole/ ]; then
+  cp /etc/hosts /etc/hosts.backup
+  (
+    while : ; do
+      cat /etc/hosts.backup /webconsole/*.hosts 2>/dev/null 1>/etc/hosts
+      [ "${sshdir}" != "" ] && \
+        cat /webconsole/*.hostkey 2>/dev/null 1>"${sshdir}"/known_hosts && \
+        chown "${WEBCONSOLE_USER}" "${sshdir}"/known_hosts
+      sleep 1
+    done
+  ) &
+fi
 
 unset WEBCONSOLE_USER
 unset WEBCONSOLE_HASH
