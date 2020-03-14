@@ -1,13 +1,21 @@
 #!/bin/sh
 set -o pipefail
 
+# Limit incoming traffic to port 3000
+iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 3000 -m state --state ESTABLISHED -j ACCEPT
+
+# Limit outgoing network access to WEBCONSOLE_BRIDGE_SUBNET
+[ "${WEBCONSOLE_BRIDGE_SUBNET}" != "" ] && \
+  iptables -A OUTPUT -d "${WEBCONSOLE_BRIDGE_SUBNET}" -j ACCEPT && \
+  iptables -A INPUT -s "${WEBCONSOLE_BRIDGE_SUBNET}" -m state --state ESTABLISHED -j ACCEPT
+
 # Create login user
-if [ "${WEBCONSOLE_USER}" != "" ] && [ "${WEBCONSOLE_HASH}" != "" ] && [ "${WEBCONSOLE_SHELL}" != "" ]; then
-  adduser -S -h /home/"${WEBCONSOLE_USER}" -s "${WEBCONSOLE_SHELL}" "${WEBCONSOLE_USER}"
-  echo "${WEBCONSOLE_USER}:${WEBCONSOLE_HASH}" | chpasswd -e
-  sshdir=/home/"${WEBCONSOLE_USER}"/.ssh
-  mkdir -p "${sshdir}" && chmod 700 "${sshdir}" && chown "${WEBCONSOLE_USER}" "${sshdir}"
-fi
+[ "${WEBCONSOLE_USER}" != "" -a "${WEBCONSOLE_HASH}" != "" -a "${WEBCONSOLE_SHELL}" != "" ] && \
+  adduser -S -h /home/"${WEBCONSOLE_USER}" -s "${WEBCONSOLE_SHELL}" "${WEBCONSOLE_USER}" && \
+  echo "${WEBCONSOLE_USER}:${WEBCONSOLE_HASH}" | chpasswd -e && \
+  sshdir=/home/"${WEBCONSOLE_USER}"/.ssh && \
+  mkdir -p "${sshdir}" && chmod 700 "${sshdir}" && chown "${WEBCONSOLE_USER}" "${sshdir}" && \
 
 # Enable auto update of /etc/hosts by permanently
 # looking for /webconsole/*.hosts

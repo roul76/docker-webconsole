@@ -8,7 +8,7 @@ ENV WEBCONSOLE_USER='wetty' \
     WEBCONSOLE_PORT=3000
 
 # Add only the OpenSSH client - This image is a jump host!
-RUN apk add --update --no-cache openssh-client && \
+RUN apk add --update --no-cache openssh-client iptables && \
     rm /etc/motd && \
     chmod 664 /etc/hosts
 
