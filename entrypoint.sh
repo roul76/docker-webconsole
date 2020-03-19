@@ -1,14 +1,22 @@
 #!/bin/sh
 set -o pipefail
 
+# Allow traffic once a connection has been made
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
 # Limit incoming traffic to port 3000
-iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 3000 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --dport "${WEBCONSOLE_PORT}" -j ACCEPT
+iptables -A OUTPUT -p tcp --sport "${WEBCONSOLE_PORT}" -m state --state ESTABLISHED -j ACCEPT
+
+# SYN flood protection
+iptables -N SYN_FLOOD
+iptables -A INPUT -p tcp --syn -j SYN_FLOOD
+iptables -A SYN_FLOOD -m limit --limit 5/s --limit-burst 10 -j RETURN
+iptables -A SYN_FLOOD -j DROP
 
 # Limit outgoing network access to WEBCONSOLE_BRIDGE_SUBNET
 [ "${WEBCONSOLE_BRIDGE_SUBNET}" != "" ] && \
-  iptables -A OUTPUT -d "${WEBCONSOLE_BRIDGE_SUBNET}" -j ACCEPT && \
-  iptables -A INPUT -s "${WEBCONSOLE_BRIDGE_SUBNET}" -m state --state ESTABLISHED -j ACCEPT
+  iptables -A OUTPUT -d "${WEBCONSOLE_BRIDGE_SUBNET}" -j ACCEPT
 
 # Create login user
 [ "${WEBCONSOLE_USER}" != "" -a "${WEBCONSOLE_HASH}" != "" -a "${WEBCONSOLE_SHELL}" != "" ] && \

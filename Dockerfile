@@ -16,6 +16,5 @@ COPY ./entrypoint.sh ./
 RUN chmod 755 ./entrypoint.sh
 
 EXPOSE ${WEBCONSOLE_PORT}
-
 ENTRYPOINT [ "./entrypoint.sh" ]
 CMD [ "node", "." ]
