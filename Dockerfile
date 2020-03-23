@@ -1,5 +1,6 @@
-# Based on the official Docker image
+# Based on the official butlerx/wetty-Docker image
 FROM butlerx/wetty:latest
+LABEL maintainer="https://github.com/roul76"
 
 # Default user is 'term' with password 'term'
 ENV WEBCONSOLE_USER='wetty' \
