@@ -18,4 +18,4 @@ RUN chmod 755 ./entrypoint.sh
 
 EXPOSE ${WEBCONSOLE_PORT}
 ENTRYPOINT [ "./entrypoint.sh" ]
-CMD [ "node", "." ]
+CMD [ "node", ".", "--host", "0.0.0.0", "--port", "3000" ]
